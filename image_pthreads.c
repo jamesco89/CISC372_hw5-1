@@ -4,11 +4,18 @@
 #include <string.h>
 #include "image.h"
 
+#define NUM_THREADS = 100;
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+
+typedef struct image{
+	Image* srcImage;
+	Image* destImage;
+} Image;
 
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
@@ -56,6 +63,7 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //            destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
+/*
 void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
     int row,pix,bit,span;
     span=srcImage->bpp*srcImage->bpp;
@@ -67,6 +75,23 @@ void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
         }
     }
 }
+*/
+
+void* convolute(void* args){
+	Image* iargs = (Image *)args
+    	int row,pix,bit,span;
+    	span=srcImage->bpp*srcImage->bpp;
+    
+	for (row=0;row<srcImage->height;row++){
+        	for (pix=0;pix<srcImage->width;pix++){
+            		for (bit=0;bit<srcImage->bpp;bit++){
+                destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
+            }
+        }
+    }
+}
+
+
 
 //Usage: Prints usage information for the program
 //Returns: -1
