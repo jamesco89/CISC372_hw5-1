@@ -64,7 +64,7 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 /*---------------------Create a convoluteThread function*-------------------*/
 void* convoluteThread(void* args){
 	image_t *iargs = (image_t *) args;
-        convolute(iargs->srcImage, iargs->desImage, iargs->Matrix algorithm);
+        convolute(iargs->srcImage, iargs->destImage, iargs->Matrix algorithm);
         return NULL;
   }
 /*--------------------------------------------------------------------------*/
@@ -112,7 +112,8 @@ enum KernelTypes GetKernelType(char* type){
 //main:
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
-    long t1,t2;
+    long t1,t2; 
+
     t1=time(NULL);
 
     stbi_set_flip_vertically_on_load(0); 
@@ -124,7 +125,7 @@ int main(int argc,char** argv){
     enum KernelTypes type=GetKernelType(argv[2]);
 
     Image srcImage,destImage,bwImage;   
-    srcImage.data=stbi_load(fileName,&srcImage.width,&srcImage.height,&srcImage.bpp,0);
+    //srcImage.data=stbi_load(fileName,&srcImage.width,&srcImage.height,&srcImage.bpp,0);
     if (!srcImage.data){
         printf("Error loading file %s.\n",fileName);
         return -1;
