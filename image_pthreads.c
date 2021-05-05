@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <string.h>
+#include <pthread.h>
 #include "image.h"
 
 #define NUM_THREADS = 100;
@@ -12,10 +13,11 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-typedef struct image{
+typedef struct image_t{
 	Image* srcImage;
 	Image* destImage;
-} Image;
+	Matrix algorithm;
+} image_t;
 
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
@@ -58,33 +60,27 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
     return result;
 }
 
+
+/*---------------------Create a convoluteThread function*-------------------*/
+void* convoluteThread(void* args){
+	image_t *iargs = (image_t *) args;
+        convolute(iargs->srcImage, iargs->desImage, iargs->Matrix algorithm);
+        return NULL;
+  }
+/*--------------------------------------------------------------------------*/
+
 //convolute:  Applies a kernel matrix to an image
 //Parameters: srcImage: The image being convoluted
 //            destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
 //            algorithm: The kernel matrix to use for the convolution
 //Returns: Nothing
-/*
+
 void convolute(Image* srcImage,Image* destImage,Matrix algorithm){
     int row,pix,bit,span;
     span=srcImage->bpp*srcImage->bpp;
     for (row=0;row<srcImage->height;row++){
         for (pix=0;pix<srcImage->width;pix++){
             for (bit=0;bit<srcImage->bpp;bit++){
-                destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
-            }
-        }
-    }
-}
-*/
-
-void* convolute(void* args){
-	Image* iargs = (Image *)args
-    	int row,pix,bit,span;
-    	span=srcImage->bpp*srcImage->bpp;
-    
-	for (row=0;row<srcImage->height;row++){
-        	for (pix=0;pix<srcImage->width;pix++){
-            		for (bit=0;bit<srcImage->bpp;bit++){
                 destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithm);
             }
         }
@@ -112,6 +108,7 @@ enum KernelTypes GetKernelType(char* type){
     else return IDENTITY;
 }
 
+/*----------------------------Modified a main program--------------------------*/
 //main:
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
@@ -132,6 +129,14 @@ int main(int argc,char** argv){
         printf("Error loading file %s.\n",fileName);
         return -1;
     }
+
+	pthread_t threads[NUM_THREADS];
+	image_t iargs[NUM_THREADS];
+
+	//comoute a portion of the image for convolution with threads
+	int p_image = ()
+
+
     destImage.bpp=srcImage.bpp;
     destImage.height=srcImage.height;
     destImage.width=srcImage.width;
