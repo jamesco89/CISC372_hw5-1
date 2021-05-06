@@ -15,7 +15,7 @@ Image* srcImage;
 Image* destImage;
 const int global_t=300;
 enum KernelTypes type;
-
+int num_threads=100;
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
 Matrix algorithms[]={
@@ -63,19 +63,19 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 void *convoluteThread(void* rank){
     int row,pix,bit;
     long my_rank=(long)rank;
-    int local_p=srcImage->width;
+    int local_p=(srcImage->width)*srcIma;
     int my_first_row=(my_rank*global_t)/local_p;
     int my_last_row=((my_rank+1)*global_t)/local_p;
     int my_first_pix=(my_rank*global_t);
     int my_last_pix=(my_rank+1)*global_t;
-    pix=pix%local_p;
+   
 
     for (row=my_first_row;row<my_last_row;row++){
         for (pix=my_first_pix;pix<my_last_pix;pix++){
             for (bit=0;bit<srcImage->bpp;bit++){
-		if(pix&&(pix>local_p)){
+	
                 destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithms[type]);
-                }
+                
             }  
         }
     }
@@ -110,7 +110,7 @@ int main(int argc,char** argv){
     t1=time(NULL);
 
     stbi_set_flip_vertically_on_load(0); 
-    if (argc!=4) return Usage();
+    if (argc!=3) return Usage();
     char* fileName=argv[1];
     if (!strcmp(argv[1],"pic4.jpg")&&!strcmp(argv[2],"gauss")){
         printf("You have applied a gaussian filter to Gauss which has caused a tear in the time-space continum.\n");
@@ -124,27 +124,27 @@ int main(int argc,char** argv){
         return -1;
     }
 
-    int num_threads=atoi(argv[3]);
+    destImage.bpp=srcImage.bpp;
+    destImage.height=srcImage.height;
+    destImage.width=srcImage.width;
+    destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
+   
     pthread_t threads[num_threads];
     //p_image=((srcImage.height)*(srcImage.width))/num_threads;
 
     for(int i=0;i<num_threads;i++){
         pthread_create(&threads[i],NULL,convoluteThread,NULL);
-	}
+        }
 
     for(int i=0;i<num_threads;i++){
-	pthread_join(threads[i],NULL);
-	}
+        pthread_join(threads[i],NULL);
+        }
 
-    destImage.bpp=srcImage.bpp;
-    destImage.height=srcImage.height;
-    destImage.width=srcImage.width;
-    destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
-    
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
-    stbi_image_free(srcImage.data);
     
+    stbi_image_free(srcImage.data);
     free(destImage.data);
+
     t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
    return 0;
