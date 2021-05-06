@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include "image.h"
 
-#define NUM_THREADS = 100;
+#define int NUM_THREADS = 100;
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -112,7 +112,8 @@ enum KernelTypes GetKernelType(char* type){
 //main:
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
-    long t1,t2; 
+    long t1,t2;
+    int p; 
 
     t1=time(NULL);
 
@@ -125,24 +126,34 @@ int main(int argc,char** argv){
     enum KernelTypes type=GetKernelType(argv[2]);
 
     Image srcImage,destImage,bwImage;   
-    //srcImage.data=stbi_load(fileName,&srcImage.width,&srcImage.height,&srcImage.bpp,0);
+   srcImage.data=stbi_load(fileName,&srcImage.width,&srcImage.height,&srcImage.bpp,0);
     if (!srcImage.data){
         printf("Error loading file %s.\n",fileName);
         return -1;
     }
 
-	pthread_t threads[NUM_THREADS];
-	image_t iargs[NUM_THREADS];
+	pthread_t threads[100];
 
-	//comoute a portion of the image for convolution with threads
-	int p_image = ()
+	for(int i = 0; i < NUM_THREADS; i++){
+		if(pthread_create(threads[i], NULL, convoluteThread,p[i] !=0){
+			perror("error");
+			return EXIT_FAILURE;
+		}
+	}	
+
+	 for(int i = 0; i < NUM_THREADS; i++){
+                 if(pthread_join(&threads[i], NULL)!= 0{
+                         perror("error");
+                         return EXIT_FAILURE;
+                 }
+         }
 
 
     destImage.bpp=srcImage.bpp;
     destImage.height=srcImage.height;
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
-    convolute(&srcImage,&destImage,algorithms[type]);
+    //convolute(&srcImage,&destImage,algorithms[type]);
     stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     stbi_image_free(srcImage.data);
     
@@ -150,4 +161,4 @@ int main(int argc,char** argv){
     t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
    return 0;
-}
+
