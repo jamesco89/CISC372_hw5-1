@@ -13,9 +13,9 @@
 
 Image* srcImage;
 Image* destImage;
-const int global_t=300;
+const int pi_thread=300;
 enum KernelTypes type;
-int num_threads=100;
+
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
 Matrix algorithms[]={
@@ -61,21 +61,21 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //Returns: Nothing
 /*-----------------------------------ConvoluteThread------------------------------------------*/
 void *convoluteThread(void* rank){
-    int row,pix,bit;
+    int row,pix,pixel_index,bit;
     long my_rank=(long)rank;
-    int local_p=(srcImage->width)*srcIma;
-    int my_first_row=(my_rank*global_t)/local_p;
-    int my_last_row=((my_rank+1)*global_t)/local_p;
-    int my_first_pix=(my_rank*global_t);
-    int my_last_pix=(my_rank+1)*global_t;
-   
+    int pi_row=srcImage->width;
+    int my_first_row=(my_rank*pi_thread)/pi_row;
+    int my_last_row=((my_rank+1)*pi_thread)/pi_row;
+    int my_first_pix=(my_rank*pi_thread);
+    int my_last_pix=(my_rank+1)*pi_thread;
+    pix=pix%pixel_index;
 
-    for (row=my_first_row;row<my_last_row;row++){
-        for (pix=my_first_pix;pix<my_last_pix;pix++){
+    for (row=my_first_row;row<=my_last_row;row++){
+        for (pix=my_first_pix,pixel_index=pix;pix<=my_last_pix;pix++,pixe_index++){
             for (bit=0;bit<srcImage->bpp;bit++){
-	
-                destImage->data[Index(pix,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pix,row,bit,algorithms[type]);
-                
+		if(pix&&(pi_row<=pixel_index)){
+                destImage->data[Index(pixel_index,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pixel_index,row,bit,algorithms[type]);
+		}
             }  
         }
     }
@@ -106,7 +106,8 @@ enum KernelTypes GetKernelType(char* type){
 //argv is expected to take 2 arguments.  First is the source file name (can be jpg, png, bmp, tga).  Second is the lower case name of the algorithm.
 int main(int argc,char** argv){
     long t1,t2;
-  
+    pthread_t* threads;
+
     t1=time(NULL);
 
     stbi_set_flip_vertically_on_load(0); 
@@ -129,14 +130,13 @@ int main(int argc,char** argv){
     destImage.width=srcImage.width;
     destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
    
-    pthread_t threads[num_threads];
-    //p_image=((srcImage.height)*(srcImage.width))/num_threads;
+    thread_c=(srcImage.height)*(srcImage.width)/pi_thread;
 
-    for(int i=0;i<num_threads;i++){
-        pthread_create(&threads[i],NULL,convoluteThread,NULL);
+    for(int i=0;i<thread_c;i++){
+        pthread_create(&threads[i],NULL,convoluteThread,(void*)i);
         }
 
-    for(int i=0;i<num_threads;i++){
+    for(int i=0;i<thread_c;i++){
         pthread_join(threads[i],NULL);
         }
 
