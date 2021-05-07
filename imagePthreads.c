@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
 #include "image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -13,7 +14,6 @@
 
 Image* srcImage;
 Image* destImage;
-const int pi_thread=300;
 enum KernelTypes type;
 
 //An array of kernel matrices to be used for image convolution.  
@@ -36,8 +36,8 @@ Matrix algorithms[]={
 //          algorithm: The 3x3 kernel matrix to use for the convolution
 //Returns: The new value for this x,y pixel and bit channel
 uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
-    int px,mx,py,my,i,span;
-    span=srcImage->width*srcImage->bpp;
+    int px,mx,py,my,i;
+    //span=srcImage->width*srcImage->bpp;
     // for the edge pixes, just reuse the edge pixel
     px=x+1; py=y+1; mx=x-1; my=y-1;
     if (mx<0) mx=0;
@@ -61,21 +61,21 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //Returns: Nothing
 /*-----------------------------------ConvoluteThread------------------------------------------*/
 void *convoluteThread(void* rank){
-    int row,pix,pixel_index,bit;
-    long my_rank=(long)rank;
-    int pi_row=srcImage->width;
-    int my_first_row=(my_rank*pi_thread)/pi_row;
-    int my_last_row=((my_rank+1)*pi_thread)/pi_row;
-    int my_first_pix=(my_rank*pi_thread);
-    int my_last_pix=(my_rank+1)*pi_thread;
-    pix=pix%pixel_index;
+    int row, pix, bit;
+    long my_rank = (long)rank;
+    long pix_row = srcImage->width;
 
-    for (row=my_first_row;row<=my_last_row;row++){
-        for (pix=my_first_pix,pixel_index=pix;pix<=my_last_pix;pix++,pixe_index++){
-            for (bit=0;bit<srcImage->bpp;bit++){
-		if(pix&&(pi_row<=pixel_index)){
-                destImage->data[Index(pixel_index,row,srcImage->width,bit,srcImage->bpp)]=getPixelValue(srcImage,pixel_index,row,bit,algorithms[type]);
-		}
+    long my_first_row = (my_rank * 1000) / pix_row;
+    long my_last_row = ((my_rank + 1) * 1000) / pix_row;
+    long my_first_pix = (my_rank * 1000);
+    long my_last_pix = (my_rank + 1) * 1000;
+
+    for (row = my_first_row; row < my_last_row; row++){
+        for (pix = my_first_pix; pix <= my_last_pix; pix++){
+            for (bit = 0; bit < srcImage->bpp; bit++){
+		    if(pix == pix_row)
+                	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)]
+			   = getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
             }  
         }
     }
@@ -116,34 +116,40 @@ int main(int argc,char** argv){
     if (!strcmp(argv[1],"pic4.jpg")&&!strcmp(argv[2],"gauss")){
         printf("You have applied a gaussian filter to Gauss which has caused a tear in the time-space continum.\n");
     }
-    enum KernelTypes type=GetKernelType(argv[2]);
+    
+    type=GetKernelType(argv[2]);
+    //Image srcImage,destImage,bwImage; 
+    srcImage = (Image*)malloc(sizeof(Image));
+    destImage = (Image*)malloc(sizeof(Image));
 
-    Image srcImage,destImage;   
-    srcImage.data=stbi_load(fileName,&srcImage.width,&srcImage.height,&srcImage.bpp,0);
-    if (!srcImage.data){
+    srcImage->data=stbi_load(fileName,&srcImage->width,&srcImage->height,&srcImage->bpp,0);
+    if (!srcImage->data){
         printf("Error loading file %s.\n",fileName);
         return -1;
     }
 
-    destImage.bpp=srcImage.bpp;
-    destImage.height=srcImage.height;
-    destImage.width=srcImage.width;
-    destImage.data=malloc(sizeof(uint8_t)*destImage.width*destImage.bpp*destImage.height);
+    destImage->bpp = srcImage->bpp;
+    destImage->height = srcImage->height;
+    destImage->width = srcImage->width;
+    destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
    
-    thread_c=(srcImage.height)*(srcImage.width)/pi_thread;
+   
+    long thread_c = (srcImage->width * srcImage->height) / 1000;
+    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
-    for(int i=0;i<thread_c;i++){
-        pthread_create(&threads[i],NULL,convoluteThread,(void*)i);
+    for(int i = 0; i < thread_c; i++){
+        pthread_create(&threads[i], NULL, &convoluteThread, NULL);
         }
-
-    for(int i=0;i<thread_c;i++){
-        pthread_join(threads[i],NULL);
-        }
-
-    stbi_write_png("output.png",destImage.width,destImage.height,destImage.bpp,destImage.data,destImage.bpp*destImage.width);
     
-    stbi_image_free(srcImage.data);
-    free(destImage.data);
+    for(int i=0; i < thread_c; i++){
+        pthread_join(threads[i], NULL);
+        }
+   
+    stbi_write_png("output.png", destImage->width, destImage->height, destImage->bpp, destImage->data, destImage->bpp * destImage->width);
+    
+    stbi_image_free(srcImage->data);
+    free(destImage->data);
+    free(threads);
 
     t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
