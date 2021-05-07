@@ -15,7 +15,7 @@
 Image* srcImage;
 Image* destImage;
 enum KernelTypes type;
-
+long pix_row, thread_c;
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
 Matrix algorithms[]={
@@ -73,9 +73,8 @@ void *convoluteThread(void* rank){
     for (row = my_first_row; row < my_last_row; row++){
         for (pix = my_first_pix; pix <= my_last_pix; pix++){
             for (bit = 0; bit < srcImage->bpp; bit++){
-		   if(pix == pix_row)
-                	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)]
-			   = getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
+		  if(pix == pix_row)
+                	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] = getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
             }  
         }
     }
@@ -134,7 +133,7 @@ int main(int argc,char** argv){
     destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
    
    
-    long thread_c = (srcImage->width * srcImage->height) / 1000;
+    thread_c = (srcImage->width * srcImage->height) / 1000;
     threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     for(int i = 0; i < thread_c; i++){
