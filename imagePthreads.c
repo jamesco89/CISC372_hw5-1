@@ -106,7 +106,7 @@ int main(int argc,char** argv){
     long t1,t2;
     pthread_t* threads;
 
-    t1=time(NULL);
+   // t1=time(NULL);
 
     stbi_set_flip_vertically_on_load(0); 
     if (argc!=3) return Usage();
@@ -137,18 +137,18 @@ int main(int argc,char** argv){
     for(int i = 0; i < thread_c; i++){
         pthread_create(&threads[i], NULL, &convoluteThread, NULL);
         }
-    
+    t1 = time(NULL);
     for(int i=0; i < thread_c; i++){
         pthread_join(threads[i], NULL);
         }
-   
+   t2=time(NULL);
     stbi_write_png("output.png", destImage->width, destImage->height, destImage->bpp, destImage->data, destImage->bpp * destImage->width);
     
     stbi_image_free(srcImage->data);
     free(destImage->data);
     free(threads);
 
-    t2=time(NULL);
+    //t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
    return 0;
 }
