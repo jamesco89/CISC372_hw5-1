@@ -60,7 +60,7 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //Returns: Nothing
 /*-----------------------------------ConvoluteThread------------------------------------------*/
 void *convoluteThread(void* rank){
-    int row, pix, bit;
+    int row, pix, pix2, bit;
     long my_rank = (long)rank;
     long pix_row = srcImage->width;
 
@@ -72,8 +72,7 @@ void *convoluteThread(void* rank){
     for (row = my_first_row; row <= my_last_row; row++){
         for (pix = my_first_pix; pix < my_last_pix; pix++){
             for (bit = 0; bit < srcImage->bpp; bit++){
-		 if(pix >= pix_row)
-			pix%=pix_row;
+		 if(pix > pix_row)
                 	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] = getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
             }  
         }
@@ -107,7 +106,7 @@ int main(int argc,char** argv){
     long t1,t2;
     pthread_t* threads;
 
-   
+   t1=time(NULL);
 
     stbi_set_flip_vertically_on_load(0); 
     if (argc!=3) return Usage();
@@ -132,7 +131,7 @@ int main(int argc,char** argv){
     destImage->width = srcImage->width;
     destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
    
-   t1=time(NULL);   
+     
    long thread_c = (srcImage->height * srcImage->width) / 1000;
     threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
