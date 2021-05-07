@@ -73,7 +73,7 @@ void *convoluteThread(void* rank){
     for (row = my_first_row; row < my_last_row; row++){
         for (pix = my_first_pix; pix <= my_last_pix; pix++){
             for (bit = 0; bit < srcImage->bpp; bit++){
-		    if(pix == pix_row)
+		   // if(pix == pix_row)
                 	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)]
 			   = getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
             }  
