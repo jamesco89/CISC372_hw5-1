@@ -131,9 +131,8 @@ int main(int argc,char** argv){
     destImage->height = srcImage->height;
     destImage->width = srcImage->width;
     destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
-   
-   
-    long thread_c = (srcImage->width * srcImage->height) / 500;
+      
+   long thread_c = (srcImage->height * srcImage->width) / 500;
     threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     for(int i = 0; i < thread_c; i++){
