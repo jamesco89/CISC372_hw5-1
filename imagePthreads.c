@@ -72,7 +72,7 @@ void *convoluteThread(void* rank){
     for (row = my_first_row; row <= my_last_row; row++){
         for (pix = my_first_pix; pix < my_last_pix; pix++){
             for (bit = 0; bit < srcImage->bpp; bit++){
-		 // if(pix == pix_row)
+		 if(pix >= pix_row)
                 	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] = getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
             }  
         }
@@ -106,7 +106,7 @@ int main(int argc,char** argv){
     long t1,t2;
     pthread_t* threads;
 
-   // t1=time(NULL);
+   
 
     stbi_set_flip_vertically_on_load(0); 
     if (argc!=3) return Usage();
@@ -130,25 +130,26 @@ int main(int argc,char** argv){
     destImage->height = srcImage->height;
     destImage->width = srcImage->width;
     destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
-      
+   
+   t1=time(NULL);   
    long thread_c = (srcImage->height * srcImage->width) / 1000;
     threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     for(int i = 0; i < thread_c; i++){
         pthread_create(&threads[i], NULL, &convoluteThread, NULL);
         }
-    t1 = time(NULL);
+  
     for(int i=0; i < thread_c; i++){
         pthread_join(threads[i], NULL);
         }
-   t2=time(NULL);
+  
     stbi_write_png("output.png", destImage->width, destImage->height, destImage->bpp, destImage->data, destImage->bpp * destImage->width);
     
     stbi_image_free(srcImage->data);
     free(destImage->data);
     free(threads);
 
-    //t2=time(NULL);
+    t2=time(NULL);
     printf("Took %ld seconds\n",t2-t1);
    return 0;
 }
