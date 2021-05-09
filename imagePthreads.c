@@ -64,10 +64,10 @@ void *convoluteThread(void* rank){
     long my_rank = (long)rank;
     long pix_row = srcImage->width;
 
-    long my_first_row = (my_rank * 500) / pix_row;
-    long my_last_row = ((my_rank + 1) * 500) / pix_row;
-    long my_first_pix = (my_rank * 500);
-    long my_last_pix = (my_rank + 1) * 500;
+    long my_first_row = (my_rank * 300) / pix_row;
+    long my_last_row = ((my_rank + 1) * 300) / pix_row;
+    long my_first_pix = (my_rank * 300);
+    long my_last_pix = (my_rank + 1) * 300;
 
     for (row = my_first_row; row <= my_last_row; row++){
         for (pix = my_first_pix, pix2 = pix ; pix < my_last_pix; pix++, pix2++){
@@ -134,7 +134,7 @@ int main(int argc,char** argv){
     destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
    
      
-   long thread_c = (srcImage->height * srcImage->width) / 500;
+   long thread_c = (srcImage->height * srcImage->width) / 300;
     threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     for(int i = 0; i < thread_c; i++){
