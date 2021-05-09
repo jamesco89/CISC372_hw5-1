@@ -73,11 +73,12 @@ void *convoluteThread(void* rank){
     for (row = my_first_row; row <= my_last_row; row++){
         for (pix = my_first_pix, pix2 = pix; pix < my_last_pix; pix++, pix2++){
             for (bit = 0; bit < srcImage->bpp; bit++){
-		    if(pix2 >= pix_row)
+		    if(pix2 >= pix_row){
 			pix2 %= pix_row;
                 	destImage->data[Index(pix2, row, srcImage->width, bit, srcImage->bpp)] 
 			= getPixelValue(srcImage, pix2, row, bit, algorithms[type]);	
-            }  
+               }
+            }
         }
     }
 }
@@ -136,13 +137,13 @@ int main(int argc,char** argv){
    
      
    long thread_c = (srcImage->height * srcImage->width) / N;
-    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
+   threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
-    for(int i = 0; i < thread_c; i++){
-        pthread_create(&threads[i], NULL, &convoluteThread, NULL);
+    for(long i = 0; i < thread_c; i++){
+        pthread_create(&threads[i], NULL, &convoluteThread, (void *) i);
         }
   
-    for(int i=0; i < thread_c; i++){
+    for(long i=0; i < thread_c; i++){
         pthread_join(threads[i], NULL);
         }
   
