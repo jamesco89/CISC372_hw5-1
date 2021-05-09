@@ -66,8 +66,8 @@ void *convoluteThread(void* rank){
     long pix_row = srcImage->height;
     long pix_p = srcImage->width;
 
-    long my_first_row = (my_rank  * pix_row) / N;
-    long my_last_row = ((my_rank + 1) *  pix_row) / N; 
+    long my_first_row = (my_rank  * pix_row + N - 1) / N;
+    long my_last_row = ((my_rank + 1) *  pix_row+ N -1) / N; 
     long my_first_pix = (my_rank * pix_p);
     long my_last_pix = ((my_rank + 1) * pix_p); 
 
@@ -129,7 +129,7 @@ int main(int argc,char** argv){
     }
 
     long thread_c = (srcImage->height * srcImage->width) / N;
-    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c * N);
+    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     destImage->bpp = srcImage->bpp;
     destImage->height = srcImage->height;
