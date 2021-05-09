@@ -140,7 +140,7 @@ int main(int argc,char** argv){
    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     for(long i = 0; i < thread_c; i++){
-        pthread_create(&threads[i], NULL, &convoluteThread, (void *) i);
+        pthread_create(&threads[i], NULL, &convoluteThread, NULL);
         }
   
     for(long i=0; i < thread_c; i++){
