@@ -129,7 +129,7 @@ int main(int argc,char** argv){
     }
 
     long thread_c = (srcImage->height * srcImage->width) / N;
-    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
+    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c * N);
 
     destImage->bpp = srcImage->bpp;
     destImage->height = srcImage->height;
