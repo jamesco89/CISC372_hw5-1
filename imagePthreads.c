@@ -15,7 +15,7 @@
 Image* srcImage;
 Image* destImage;
 enum KernelTypes type;
-const int N = 1000;
+const int N = 200;
 
 //An array of kernel matrices to be used for image convolution.  
 //The indexes of these match the enumeration from the header file. ie. algorithms[BLUR] returns the kernel corresponding to a box blur.
@@ -120,7 +120,7 @@ int main(int argc,char** argv){
     }
     
     type=GetKernelType(argv[2]);
-    //Image srcImage,destImage,bwImage; 
+     
     srcImage = (Image*)malloc(sizeof(Image));
     destImage = (Image*)malloc(sizeof(Image));
 
@@ -130,7 +130,6 @@ int main(int argc,char** argv){
         return -1;
     }
 
-    
     long thread_c = (srcImage->height * srcImage->width) / N;
     threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
