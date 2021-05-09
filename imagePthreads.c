@@ -60,20 +60,21 @@ uint8_t getPixelValue(Image* srcImage,int x,int y,int bit,Matrix algorithm){
 //Returns: Nothing
 /*-----------------------------------ConvoluteThread------------------------------------------*/
 void *convoluteThread(void* rank){
-    int row, pix, pix2, bit;
+    int row, pix, bit;
     long my_rank = (long)rank;
     long pix_row = srcImage->width;
 
-    long my_first_row = (my_rank * 1000) / pix_row;
-    long my_last_row = ((my_rank + 1) * 1000) / pix_row;
-    long my_first_pix = (my_rank * 1000);
-    long my_last_pix = (my_rank + 1) * 1000;
+    long my_first_row = (my_rank * 500) / pix_row;
+    long my_last_row = ((my_rank + 1) * 500) / pix_row;
+    long my_first_pix = (my_rank * 500);
+    long my_last_pix = (my_rank + 1) * 500;
 
     for (row = my_first_row; row <= my_last_row; row++){
         for (pix = my_first_pix; pix < my_last_pix; pix++){
             for (bit = 0; bit < srcImage->bpp; bit++){
-		 if(pix > pix_row)
-                	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] = getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
+		    if(pix >= pix_row)
+                	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] 
+			= getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
             }  
         }
     }
@@ -132,7 +133,7 @@ int main(int argc,char** argv){
     destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
    
      
-   long thread_c = (srcImage->height * srcImage->width) / 1000;
+   long thread_c = (srcImage->height * srcImage->width) / 500;
     threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     for(int i = 0; i < thread_c; i++){
