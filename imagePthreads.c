@@ -74,7 +74,7 @@ void *convoluteThread(void* rank){
         for (pix = my_first_pix; pix < my_last_pix; pix++){
             for (bit = 0; bit < srcImage->bpp; bit++){
 		    //if(pix == pix_row){
-			//pix2 %= pix_row;
+			if (pix %= pix_row)
                 	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] 
 			= getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
               // }
@@ -130,23 +130,24 @@ int main(int argc,char** argv){
         return -1;
     }
 
+    
+    long thread_c = (srcImage->height * srcImage->width) / N;
+    threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
+
     destImage->bpp = srcImage->bpp;
     destImage->height = srcImage->height;
     destImage->width = srcImage->width;
     destImage->data = malloc(sizeof(uint8_t)*destImage->width*destImage->bpp*destImage->height);
-   
-     
-   long thread_c = (srcImage->height * srcImage->width) / N;
-   threads = (pthread_t*)malloc(sizeof(pthread_t)*thread_c);
 
     for(long i = 0; i < thread_c; i++){
-        pthread_create(&threads[i], NULL, &convoluteThread, NULL);
-        }
-  
-    for(long i=0; i < thread_c; i++){
-        pthread_join(threads[i], NULL);
-        }
-  
+	pthread_create(&threads[i], NULL, &convoluteThread, NULL);
+    }
+
+    
+     for(long i = 0; i < thread_c; i++){
+	 pthread_join(threads[i], NULL);
+     }
+
     stbi_write_png("output.png", destImage->width, destImage->height, destImage->bpp, destImage->data, destImage->bpp * destImage->width);
     
     stbi_image_free(srcImage->data);
