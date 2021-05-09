@@ -4,7 +4,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
-#include "image.h"
+#include "imagePthreads.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
