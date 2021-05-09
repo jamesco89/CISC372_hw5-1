@@ -65,22 +65,18 @@ void *convoluteThread(void* rank){
     long my_rank = (long)rank;
     //long pix_row = srcImage->width;
     long pix_row = srcImage->height;
-    long pix_p = srcImage->width;
-    long bit_bpp = srcImage->bpp;	
+    long pix_p = srcImage->width;	
 
     long my_first_row = (my_rank  * pix_row) / N;
     long my_last_row = ((my_rank + 1) *  pix_row) / N; 
     long my_first_pix = (my_rank * pix_p) / N;
-    long my_last_pix = ((my_rank + 1) * pix_p) / N;
-    long my_first_bit = (my_rank * bit_bpp) / N; 
-    long my_last_bit = ((my_rank + 1) * bit_bpp) / N; 
+    long my_last_pix = ((my_rank + 1) * pix_p) / N; 
 
     for (row = my_first_row; row <= my_last_row; row++){
         for (pix = my_first_pix; pix < my_last_pix; pix++){
-            //for (bit = 0; bit < srcImage->bpp; bit++){
-	     for (bit = my_first_bit; bit < my_last_bit; bit++){
-                	destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] 
-			= getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
+            for (bit = 0; bit < srcImage->bpp; bit++){
+                destImage->data[Index(pix, row, srcImage->width, bit, srcImage->bpp)] 
+		= getPixelValue(srcImage, pix, row, bit, algorithms[type]);	
             }
         }
     }
