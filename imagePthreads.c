@@ -64,8 +64,8 @@ void *convoluteThread(void* rank){
     int row, pix, bit;
     long my_rank = (long)rank;
     //long pix_row = srcImage->width;
-    long pix_row = srcImage->height;
-    long pix_p = srcImage->width;
+    long pix_row = srcImage->width;
+    long pix_p = srcImage->height;
 	
     long my_first_row = (my_rank  * pix_row) / N;
     long my_last_row = ((my_rank + 1) *  pix_row) / N ; 
