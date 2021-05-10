@@ -1,0 +1,9 @@
+Script started on 2021-05-09 20:09:19-04:00
+]0;jamesco@br013:~/CISC372_hw5-1[jamesco@r001 CISC372_hw5-1]$ ./imageOpenmp pic1.jpg edge
+Took 8 seconds
+]0;jamesco@br013:~/CISC372_hw5-1[jamesco@r001 CISC372_hw5-1]$ ./imagePthreads pic1.jpg edge
+Took 12 seconds
+]0;jamesco@br013:~/CISC372_hw5-1[jamesco@r001 CISC372_hw5-1]$ exit
+exit
+
+Script done on 2021-05-09 20:10:05-04:00
