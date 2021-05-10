@@ -4,10 +4,10 @@ image: image.c image.h
 	gcc -g image.c -o image -lm
 
 imageOpenmp: imageOpenmp.c imageOpenmp.h
-	gcc -g -fopenmp imageOpenmp.c -o imageOpenmp
+	gcc -g imageOpenmp.c -o imageOpenmp -lm -fopenmp
 
 imagePthreads: imagePthreads.c imagePthreads.h
-	gcc -g -lpthread imagePthreads.c -o imagePthreads 
+	gcc -g imagePthreads.c -o imagePthreads -lm -lpthread 
 
 clean:
-	rm -rf image imageOpemmp imagePhreads output.png
+	rm -f image imageOpemmp imagePhreads output.png
